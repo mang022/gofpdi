@@ -6,12 +6,13 @@ import (
 	"compress/zlib"
 	"encoding/binary"
 	"fmt"
-	"github.com/pkg/errors"
 	"io"
 	"io/ioutil"
 	"math"
 	"os"
 	"strconv"
+
+	"github.com/pkg/errors"
 )
 
 type PdfReader struct {
@@ -1230,12 +1231,6 @@ func (this *PdfReader) readPages() error {
 		return errors.Wrap(err, "Failed to resolve pages object")
 	}
 
-	// This will normally return itself
-	kids, err := this.resolveObject(pagesDict.Value.Dictionary["/Kids"])
-	if err != nil {
-		return errors.Wrap(err, "Failed to resolve kids object")
-	}
-
 	// Get number of pages
 	pageCount, err := this.resolveObject(pagesDict.Value.Dictionary["/Count"])
 	if err != nil {
@@ -1245,12 +1240,6 @@ func (this *PdfReader) readPages() error {
 
 	// Allocate pages
 	this.pages = make([]*PdfValue, pageCount.Int)
-
-	// Read kids
-	err = this.readKids(kids, 0)
-	if err != nil {
-		return errors.Wrap(err, "Failed to read kids")
-	}
 
 	return nil
 }
